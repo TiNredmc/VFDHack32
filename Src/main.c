@@ -45,8 +45,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t GPbuff[9] ; // define the 32-bit unsigned integer for holding 288 it data
-
+uint32_t GPbuff[36] ; // define the 32-bit unsigned integer for holding 288 it data
+uint8_t * Sendbuffptr = (uint8_t *)GPbuff;
 //Dummy bytes ; Format (MSB)[a,b,c,d,e,f,0,0](LSB)
 
 uint8_t img1[39]={
@@ -77,7 +77,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void VFDLoadBMP(uint8_t Grid, uint8_t *sBMP[39]){
-	// Logically thinking : Determine the Grid is Event or Odd number (Important, For the simple algoithm to convert abcdef to afbecd format).
+	// Logically thinking : Determine the Grid is Event or Odd number (Important, For the simple algorithm to convert abcdef to afbecd format).
 		uint8_t EvOd = 0;
 		if(Grid%2){
 			EvOd = 1;// odd number (odd grid), Only manipulate the a, b, c Dots
@@ -239,7 +239,7 @@ void VFDUpdate(){
 	HAL_GPIO_WritePin(GPIOE, LD3_Pin, GPIO_PIN_RESET);// LAT low
 	HAL_GPIO_WritePin(GPIOE, LD4_Pin, GPIO_PIN_RESET);// BLK low
 
-	HAL_SPI_Transmit(SPI2, *GPbuff, 36, HAL_MAX_DELAY);//
+	HAL_SPI_Transmit(&hspi2, Sendbuffptr, 36, HAL_MAX_DELAY);// Send data over SPI
 }
 /* USER CODE END 0 */
 

@@ -17,12 +17,11 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "spi.h"
 #include "gpio.h"
-#include <stdint.h>
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -45,7 +44,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t GPbuff[36] ; // define the 32-bit unsigned integer for holding 288 it data
+static uint32_t GPbuff[36] ; // define the 32-bit unsigned integer for holding 288 it data
 uint8_t * Sendbuffptr = (uint8_t *)GPbuff;
 //Dummy bytes ; Format (MSB)[a,b,c,d,e,f,0,0](LSB)
 
@@ -61,7 +60,7 @@ uint8_t img1[39]={
 0x78, 0xD8, 0x78, 0xD8,
 0x78, 0xD8, 0x78      };
 
-uint8_t reOrder[2][6]={
+static const uint8_t reOrder[2][6]={
 {0,2,0,3,0,4}, /* the bit shift to convert def to the afbecd format */
 {7,0,6,0,5,0} /* the bit shift to convert abc to the afbecd format */
 };
@@ -76,7 +75,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void VFDLoadBMP(uint8_t Grid, uint8_t *sBMP[39]){
+void VFDLoadBMP(uint8_t Grid, uint8_t *sBMP){
 	// Logically thinking : Determine the Grid is Event or Odd number (Important, For the simple algorithm to convert abcdef to afbecd format).
 		uint8_t EvOd = 0;
 		if(Grid%2){
@@ -241,6 +240,8 @@ void VFDUpdate(){
 
 	HAL_SPI_Transmit(&hspi2, Sendbuffptr, 36, HAL_MAX_DELAY);// Send data over SPI
 }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -283,6 +284,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	VFDLoadBMP(1, img1);
+	VFDUpdate();
+	HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
@@ -296,7 +300,8 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -308,7 +313,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -348,7 +353,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

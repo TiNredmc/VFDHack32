@@ -30,6 +30,9 @@
         <file>
           <name>main.h</name>
         </file>
+        <file>
+          <name>usart.h</name>
+        </file>
       </filestoremove>
       <sourceEntriesToRemove>
         <sourceEntry/>

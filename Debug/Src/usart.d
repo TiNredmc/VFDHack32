@@ -1,4 +1,4 @@
-Src/gpio.o: ../Src/gpio.c ../Inc/gpio.h ../Inc/main.h \
+Src/usart.o: ../Src/usart.c ../Inc/usart.h ../Inc/main.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h \
  ../Inc/stm32f3xx_hal_conf.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h \
@@ -30,7 +30,7 @@ Src/gpio.o: ../Src/gpio.c ../Inc/gpio.h ../Inc/main.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h
 
-../Inc/gpio.h:
+../Inc/usart.h:
 
 ../Inc/main.h:
 

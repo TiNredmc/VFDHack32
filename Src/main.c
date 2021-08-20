@@ -20,11 +20,14 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "spi.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,30 +42,55 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
+// Pin connection
+// PB15 	MOSI
+// PB13 	SCLK
+// PE9 		LATCH
+// PE8 		BLANK
+
+#ifdef __GNUC__
+  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static uint32_t GPbuff[36] ; // define the 32-bit unsigned integer for holding 288 it data
-uint8_t * Sendbuffptr = (uint8_t *)GPbuff;
+
+static uint32_t GPbuff[9] ; // 32x9 bit array (288 bits == What display expected).
+static uint8_t Sendbuffptr[36];
 //Dummy bytes ; Format (MSB)[a,b,c,d,e,f,0,0](LSB)
 
 uint8_t img1[39]={
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78, 0xD8,
-0x78, 0xD8, 0x78      };
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54, 0xA8,
+0x54, 0xA8, 0x54      };
 
-static const uint8_t reOrder[2][6]={
+static const uint8_t reOrder0[2][6]={// first 4 bytes (GPbuff[0and3])
 {0,2,0,3,0,4}, /* the bit shift to convert def to the afbecd format */
 {7,0,6,0,5,0} /* the bit shift to convert abc to the afbecd format */
+};
+
+static const uint8_t reOrder1[2][6]={// next 4 bytes (GPbuff[1and4])
+{0,3,0,4,0,2}, /* the bit shift to convert efd to the afbecd format */
+{6,0,5,0,7,0} /* the bit shift to convert bca to the afbecd format */
+};
+
+static const uint8_t reOrder2[2][6]={// last 4 bytes (GPbuff[2and5])
+{0,4,0,2,0,3}, /* the bit shift to convert fde to the afbecd format */
+{5,0,7,0,6,0} /* the bit shift to convert cab to the afbecd format */
 };
 
 /* USER CODE END PV */
@@ -70,11 +98,25 @@ static const uint8_t reOrder[2][6]={
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the EVAL_COM1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
 
+  return ch;
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void Delay_us(int usecs){
+	int count = (usecs * 48) / 4;
+	for (int i = 0; i < count; ++i) {
+	    count--;
+	}
+}
+
 void VFDLoadBMP(uint8_t Grid, uint8_t *sBMP){
 	// Logically thinking : Determine the Grid is Event or Odd number (Important, For the simple algorithm to convert abcdef to afbecd format).
 		uint8_t EvOd = 0;
@@ -83,158 +125,113 @@ void VFDLoadBMP(uint8_t Grid, uint8_t *sBMP){
 		}else{
 			EvOd = 0;// event number (event grid), Only manipulate the d, e, f Dots
 		}
+
 uint8_t nxtWrd = 0;
-for(uint8_t wdCount=0; wdCount < 2;wdCount++){// Do twice
-		//4 bytes on first buffer array
-	if(wdCount){
+uint8_t CMP= 0;
+for(uint8_t wdCount=0; wdCount < 2;wdCount++){// First 6 array repeat itself so do this twice.
+
+		// GPbuff[0] and GPbuf[3]
+		// 4 bytes on first buffer array
+		// 1a 1f 1b 1e 1c 1d to 6a 6f
+
 		for(uint8_t i=0;i < 32;i++){// for 2nd round
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[0+nxtWrd] = (1 << i);
+			memcpy(&CMP, sBMP,1);
+			if(CMP & (1 << reOrder0[EvOd][i%6])){
+				GPbuff[0+nxtWrd] |= (1 << i);
 			}else{
-				GPbuff[0+nxtWrd] = (0 << i);
+				GPbuff[0+nxtWrd] &= ~(1 << i);
 			}
-			if((i%6) == 5){// move to next bitmap when we complete previous 6bit BMP
-			sBMP++;
-			}
-		}
-	}else{
-		for(uint8_t i=0;i < 30;i++){// for 1st round
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[0+nxtWrd] = (1 << (i+2));
-			}else{
-				GPbuff[0+nxtWrd] = (0 << (i+2));
-			}
-			if((i%6) == 5){// move to next bitmap when we complete previous 6bit BMP
-			sBMP++;
-			}
-	}
-	}
-		//4 bytes on second buffer array + 2 bit for 11a,11f
-		for(uint8_t i=0;i < 30;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[1+nxtWrd] = (1 << i);
-			}else{
-				GPbuff[1+nxtWrd] = (0 << i);
-			}
-			if((i%6) == 5){// move to next bitmap when we complete previous 6bit BMP
-			sBMP++;
-			}
-		}
-		//2 bit for 11a,11f
-		for(uint8_t i=30;i < 32;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[1+nxtWrd] = (1 << i);
-				}else{
-				GPbuff[1+nxtWrd] = (0 << i);
-			}
-		}
 
-		//4byte on third buffer array
-		for(uint8_t i=0;i < 4;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[2+nxtWrd] = (1 << i);
-			}else{
-				GPbuff[2+nxtWrd] = (0 << i);
-			}
-		}
-		sBMP++;
-
-		for(uint8_t i=0;i < 23;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[2+nxtWrd] = (1 << (i+4));
-			}else{
-				GPbuff[2+nxtWrd] = (0 << (i+4));
-			}
 			if((i%6) == 5){// move to next bitmap when we complete previous 6bit BMP
 			sBMP++;
 			}
 		}
 
-		//for 16a to 16e
-		for(uint8_t i=27;i < 31;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][(i-3)%6])){
-				GPbuff[2+nxtWrd] = (1 << i);
+		// GPbuff[1] and GPbuff[4]
+		//
+		//4 bytes on second buffer array + 4 bits for 11a, 11f, 11b and 11e
+		for(uint8_t i=0;i < 32;i++){
+			memcpy(&CMP, sBMP,1);
+			if(CMP & (1 << reOrder1[EvOd][(i%6)])){
+				GPbuff[1+nxtWrd] |= (1 << i);
 			}else{
-				GPbuff[2+nxtWrd] = (0 << i);
+				GPbuff[1+nxtWrd] &= ~(1 << i);
+			}
+
+			if((i%6) == 3){// move to next bitmap when we complete previous 6bit BMP
+			sBMP++;
 			}
 		}
 
-		//16d and 16c in the 4th array(word)
-		for(uint8_t i=0;i < 2;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][(i+4)%6])){
-				GPbuff[2+nxtWrd] = (1 << i);
+		// GPbuff[2] and GPbuff[5]
+		//
+		//4 bytes on 3rd buffer array
+		for(uint8_t i=0;i < 32;i++){
+			memcpy(&CMP, sBMP,1);
+			if(CMP & (1 << reOrder2[EvOd][i%6])){
+				GPbuff[2+nxtWrd] |= (1 << i);
 			}else{
-				GPbuff[2+nxtWrd] = (0 << i);
+				GPbuff[2+nxtWrd] &= ~(1 << i);
+			}
+
+			if((i%6) == 1){// move to next bitmap when we complete previous 6bit BMP
+			sBMP++;
 			}
 		}
-		sBMP++;
+
 		nxtWrd = 3;// next time we start the array at GPbuff[3]
 }//for(uint8_t wdCount=0; wdCount < 2;wdCount++)
 
-		//32d and 32c in the 7th buffer array(word)
-		for(uint8_t i=0;i < 2;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][(i+4)%6])){
-				GPbuff[6] = (1 << i);
-			}else{
-				GPbuff[6] = (0 << i);
-			}
-		}
-		sBMP++;
+		// GPbuff[6]
+		// 32a to 38f
 
-		//4 bytes on 7th buffer array
-		for(uint8_t i=0;i < 30;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[6] = (1 << (i+2));
+		for(uint8_t i=0;i < 32;i++){// for 2nd round
+			memcpy(&CMP, sBMP,1);
+			if(CMP & (1 << reOrder0[EvOd][i%6])){
+				GPbuff[6] |= (1 << i);
 			}else{
-				GPbuff[6] = (0 << (i+2));
+				GPbuff[6] &= ~(1 << i);
 			}
+
 			if((i%6) == 5){// move to next bitmap when we complete previous 6bit BMP
 			sBMP++;
 			}
 		}
 
-		// 1 byte on 8th buffer array
-		for(uint8_t i=0;i < 8;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[7] = (1 << i);
+		for(uint8_t i=0;i < 10;i++){
+			memcpy(&CMP, sBMP,1);
+			if(CMP & (1 << reOrder1[EvOd][i%6])){
+				GPbuff[7] |= (1 << i);
 			}else{
-				GPbuff[7] = (0 << i);
+				GPbuff[7] &= ~(1 << i);
 			}
-			if((i%6) == 5){// move to next bitmap when we complete previous 6bit BMP
+
+			if((i%6) == 3){// move to next bitmap when we complete previous 6bit BMP
 			sBMP++;
 			}
 		}
 
-		for(uint8_t i=0; i < 4;i++){
-			if((uintptr_t)sBMP & (1 << reOrder[EvOd][i%6])){
-				GPbuff[7] = (1 << (i+8));
-			}else{
-				GPbuff[7] = (0 << (i+8));
+			if(Grid < 22){// Grid number is between 1 - 21
+				GPbuff[7] |= (1 << (Grid+9));// Grid N on
+				GPbuff[7] |= (1 << (Grid+10));// Grid  N+1 on
+			}else if(Grid == 22){// Grid number is 22
+				GPbuff[7] |= (1 << 31);// Grid 22 on
+				GPbuff[8] |= (1 << 0);// Grid 23 on
+			}else{// Grid number is between 23-54
+				GPbuff[8] |= (1 << (Grid-23));
+				GPbuff[8] |= (1 << (Grid-22));
 			}
-		}
 
-	if(Grid == 52){
-			GPbuff[7] = (1 << 12);
-			GPbuff[8] = (1 << 31);
-	}else{
-			if(Grid < 20){
-				GPbuff[7] = (1 << (Grid+11));
-				GPbuff[7] = (1 << (Grid+12));
-			}else if(Grid == 20){
-				GPbuff[7] = (1 << 31);
-				GPbuff[8] = (1 << 0);
-			}else{
-				GPbuff[8] = (1 << (Grid-21));
-				GPbuff[8] = (1 << (Grid-20));
-			}
+			memcpy(Sendbuffptr, GPbuff, 36);
+			GPbuff[7] = 0;
+			GPbuff[8] = 0;
 	}
 
-}
 
 void VFDUpdate(){
 	HAL_GPIO_WritePin(GPIOE, LD4_Pin, GPIO_PIN_SET);// BLK high
 	HAL_GPIO_WritePin(GPIOE, LD3_Pin, GPIO_PIN_SET);// LAT high
-	for(uint8_t count;count < 256;count++){}
+	Delay_us(50);
 	HAL_GPIO_WritePin(GPIOE, LD3_Pin, GPIO_PIN_RESET);// LAT low
 	HAL_GPIO_WritePin(GPIOE, LD4_Pin, GPIO_PIN_RESET);// BLK low
 
@@ -273,8 +270,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI2_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  uint8_t GridNum = 1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -284,9 +282,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	VFDLoadBMP(1, img1);
+	VFDLoadBMP(GridNum++, img1);
 	VFDUpdate();
-	HAL_Delay(100);
+	//HAL_Delay(100);
+	if(GridNum > 52)
+		GridNum = 1;
   }
   /* USER CODE END 3 */
 }
@@ -299,6 +299,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -323,6 +324,12 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;
+  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }

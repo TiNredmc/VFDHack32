@@ -123,7 +123,7 @@ int main(void)
   VFDsetup(&VFDDisp, &hspi2, GPIOE, LD4_Pin, LD3_Pin);
   //VFDLoadFull((uint8_t *)gImage_BMP);
 
-  VFDPrint("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+  VFDPrint(" !""#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
  // HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 

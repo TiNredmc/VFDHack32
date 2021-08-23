@@ -122,8 +122,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   VFDsetup(&VFDDisp, &hspi2, GPIOE, LD4_Pin, LD3_Pin);
   //VFDLoadFull((uint8_t *)gImage_BMP);
-  VFDFill(false);
-  VFDPrint("TinLethax!");
+
+  VFDPrint("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
  // HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 

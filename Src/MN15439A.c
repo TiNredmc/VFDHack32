@@ -59,7 +59,7 @@ void VFDsetup(MN15439A *VFDDisp, SPI_HandleTypeDef *Bus, GPIO_TypeDef *vfdGPIO, 
 	VFDDisp->LAT_pin = LAT_pin;
 
 	FB0 = malloc(750);// malloc the frame buffer memory
-
+	VFDFill(false);
 }
 
 // Load 6bit data to the send buffer
@@ -112,7 +112,7 @@ case(5):
 	for(uint8_t i=0;i < 39; i++){
 		Y_offset = X_offset + (i * 20);// calculate the vertical offset
 		ABCarray[i] = FB0[Y_offset+1] << 4;// bit 3-0 will be on [a][b][c][d]
-		ABCarray[i] |= FB0[Y_offset+2] >> 4;// bit 7 and 6 will be on [e][f], 6 remain bits will be on next array
+		ABCarray[i] |= (FB0[Y_offset+2] >> 4) & 0x0C;// bit 7 and 6 will be on [e][f], 6 remain bits will be on next array
 	}
 break;
 

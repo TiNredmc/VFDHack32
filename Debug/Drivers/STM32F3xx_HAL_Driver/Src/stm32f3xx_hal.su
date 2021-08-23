@@ -1,12 +1,12 @@
 stm32f3xx_hal.c:186:13:HAL_MspInit	0	static
 stm32f3xx_hal.c:197:13:HAL_MspDeInit	0	static
 stm32f3xx_hal.c:163:19:HAL_DeInit	8	static
-stm32f3xx_hal.c:220:26:HAL_InitTick	8	static
+stm32f3xx_hal.c:220:26:HAL_InitTick	16	static
 stm32f3xx_hal.c:138:19:HAL_Init	8	static
 stm32f3xx_hal.c:278:13:HAL_IncTick	0	static
 stm32f3xx_hal.c:289:17:HAL_GetTick	0	static
 stm32f3xx_hal.c:298:10:HAL_GetTickPrio	0	static
-stm32f3xx_hal.c:307:19:HAL_SetTickFreq	8	static
+stm32f3xx_hal.c:307:19:HAL_SetTickFreq	16	static
 stm32f3xx_hal.c:339:21:HAL_GetTickFreq	0	static
 stm32f3xx_hal.c:355:13:HAL_Delay	16	static
 stm32f3xx_hal.c:381:13:HAL_SuspendTick	0	static

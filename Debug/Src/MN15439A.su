@@ -1,0 +1,7 @@
+MN15439A.c:34:6:Delay_us	0	static
+MN15439A.c:42:6:VFDsetup	8	static
+MN15439A.c:55:6:VFDLoadBMP	64	static
+MN15439A.c:246:6:VFDLoadFull	0	static
+MN15439A.c:250:6:VFDClear	0	static
+MN15439A.c:254:6:VFDFill	0	static
+MN15439A.c:261:6:VFDLoadPart	32	static

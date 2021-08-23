@@ -16,10 +16,22 @@
       <Secure/>
       <filestoremove>
         <file>
+          <name>Src\usart.c</name>
+        </file>
+        <file>
+          <name>Drivers\STM32F3xx_HAL_Driver\Src\stm32f3xx_hal_uart.c</name>
+        </file>
+        <file>
+          <name>Drivers\STM32F3xx_HAL_Driver\Src\stm32f3xx_hal_uart_ex.c</name>
+        </file>
+        <file>
           <name>gpio.h</name>
         </file>
         <file>
           <name>spi.h</name>
+        </file>
+        <file>
+          <name>usart.h</name>
         </file>
         <file>
           <name>stm32f3xx_it.h</name>
@@ -31,7 +43,13 @@
           <name>main.h</name>
         </file>
         <file>
-          <name>usart.h</name>
+          <name>Src\tim.c</name>
+        </file>
+        <file>
+          <name>tim.h</name>
+        </file>
+        <file>
+          <name>dma.h</name>
         </file>
       </filestoremove>
       <sourceEntriesToRemove>

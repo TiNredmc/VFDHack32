@@ -121,7 +121,9 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   VFDsetup(&VFDDisp, &hspi2, GPIOE, LD4_Pin, LD3_Pin);
-  VFDLoadFull((uint8_t *)gImage_BMP);
+  //VFDLoadFull((uint8_t *)gImage_BMP);
+  VFDFill(false);
+  VFDPrint("TinLethax!");
  // HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 

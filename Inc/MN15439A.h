@@ -32,6 +32,6 @@ void VFDLoadFull(uint8_t * BMP);
 void VFDClear();
 void VFDFill(bool fill);
 void VFDLoadPart(uint8_t* BMP, uint8_t Xcord, uint8_t Ycord, uint8_t bmpW, uint8_t bmpH);
-
+void VFDPrint(char *txtBuf);
 
 #endif /* MN15439A_H_ */

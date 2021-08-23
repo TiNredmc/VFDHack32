@@ -16,6 +16,13 @@ static uint8_t GPbuff[36] ; // 8x36 bit array (288 bits == What display expected
 //6 bit array ; Format (MSB)[a,b,c,d,e,f,0,0](LSB)
 static uint8_t ABCarray[ABCARRAY_SIZE];
 
+//This buffer holds 1 Character bitmap image (8x8)
+static uint8_t chBuf[8];
+
+//These Vars required for print function
+static uint8_t YLine = 1;
+static uint8_t Xcol = 1;
+
 // LUT for converting normal ABCDEF format to AFBDCD format
 static const uint8_t reOrder0[2][6]={// first 4 bytes (GPbuff[0and3])
 {0,2,0,3,0,4}, /* the bit shift to convert def to the afbecd format */
@@ -29,6 +36,10 @@ static const uint8_t reOrder2[2][6]={// last 4 bytes (GPbuff[2and5])
 {0,4,0,2,0,3}, /* the bit shift to convert fde to the afbecd format */
 {5,0,7,0,6,0} /* the bit shift to convert cab to the afbecd format */
 };
+
+uint8_t smallRbit(uint8_t re){
+	return (uint8_t)(__RBIT(re) >> 24);
+}
 
 // used for Display blanking
 void Delay_us(uint16_t usecs){
@@ -276,4 +287,35 @@ void VFDLoadPart(uint8_t* BMP, uint8_t Xcord, uint8_t Ycord, uint8_t bmpW, uint8
 		memcpy(FB0 + XYoff, BMP + WHoff, bmpW);
 	}
 
+}
+
+
+//Print 8x8 Text on screen
+void VFDPrint(char *txtBuf){
+
+uint16_t chOff = 0;
+
+while(*txtBuf){
+	// In case of reached 50 chars or newline detected , Do the newline
+	if ((Xcol > 19) || *txtBuf == 0x0A){
+		Xcol = 1;// Move cursor to most left
+		YLine += 8;// enter new line
+		txtBuf++;// move to next char
+	}
+
+	// Avoid printing Newline
+	if (*txtBuf != 0x0A){
+
+	chOff = (*txtBuf - 0x20) * 8;// calculate char offset (fist 8 pixel of character)
+
+	for(uint8_t i=0;i < 8;i++){// Copy the inverted color px to buffer
+	chBuf[i] = smallRbit(font8x8_basic[i + chOff]);
+	}
+
+	VFDLoadPart((uint8_t *)chBuf, Xcol, YLine, 1, 8);// Align the char with the 8n pixels
+
+	txtBuf++;// move to next char
+	Xcol++;// move cursor to next column
+	}
+  }
 }

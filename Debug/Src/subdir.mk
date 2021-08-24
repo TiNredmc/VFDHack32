@@ -13,7 +13,8 @@ C_SRCS += \
 ../Src/stm32f3xx_hal_msp.c \
 ../Src/stm32f3xx_it.c \
 ../Src/syscalls.c \
-../Src/system_stm32f3xx.c 
+../Src/system_stm32f3xx.c \
+../Src/tim.c 
 
 OBJS += \
 ./Src/MN15439A.o \
@@ -24,7 +25,8 @@ OBJS += \
 ./Src/stm32f3xx_hal_msp.o \
 ./Src/stm32f3xx_it.o \
 ./Src/syscalls.o \
-./Src/system_stm32f3xx.o 
+./Src/system_stm32f3xx.o \
+./Src/tim.o 
 
 C_DEPS += \
 ./Src/MN15439A.d \
@@ -35,7 +37,8 @@ C_DEPS += \
 ./Src/stm32f3xx_hal_msp.d \
 ./Src/stm32f3xx_it.d \
 ./Src/syscalls.d \
-./Src/system_stm32f3xx.d 
+./Src/system_stm32f3xx.d \
+./Src/tim.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

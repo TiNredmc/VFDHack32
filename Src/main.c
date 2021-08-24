@@ -21,6 +21,7 @@
 #include "main.h"
 #include "dma.h"
 #include "spi.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -103,11 +104,17 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_SPI2_Init();
   MX_DMA_Init();
+  MX_SPI2_Init();
   MX_SPI1_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
-  VFDsetup(&VFDDisp, &hspi2, GPIOE, LD4_Pin, LD3_Pin);
+  //TODO: Note, every compilation needs to move MX_DMAInit(); to be before SPI init!
+  //start the Timer17 for uSec delay
+  HAL_TIM_Base_Start(&htim17);
+
+  // VFD init
+  VFDsetup(&VFDDisp, &hspi2, GPIOE, LD4_Pin, LD3_Pin, GCP_Pin);
   VFDPrint(" !""#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
 
   /* USER CODE END 2 */
@@ -120,7 +127,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	//HAL_Delay(10);
-	VFDLoadBMP(&VFDDisp, GridNum);
+	VFDLoadBMP(&VFDDisp, GridNum++);
 	  if(GridNum > 52)
 		  GridNum = 1;
   }
@@ -170,9 +177,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin == SPI1_NSS_Pin){
 		HAL_SPI_Receive_DMA(&hspi1, FB0, 780);
   }
+
 }
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi){
-	GridNum++;
+	//GridNum++;
 }
 
 

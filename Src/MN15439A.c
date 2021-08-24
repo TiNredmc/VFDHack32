@@ -6,6 +6,7 @@
  */
 
 #include "MN15439A.h"
+#include "tim.h"
 #include "font8x8_basic.h"
 #include <string.h>
 #include <stdlib.h>
@@ -43,14 +44,12 @@ uint8_t smallRbit(uint8_t re){
 
 // used for Display blanking
 void Delay_us(uint16_t usecs){
-	uint16_t count = (usecs * 48) / 4;
-	for (uint16_t i = 0; i < count; ++i) {
-	    count--;
-	}
+	__HAL_TIM_SET_COUNTER(&htim17,0);  // set the counter value a 0
+	while (__HAL_TIM_GET_COUNTER(&htim17) < usecs);  // wait for the counter to reach the us input in the parameter
 }
 
 // Setting up all parameters
-void VFDsetup(MN15439A *VFDDisp, SPI_HandleTypeDef *Bus, GPIO_TypeDef *vfdGPIO, uint16_t BLANK_pin, uint16_t LAT_pin){
+void VFDsetup(MN15439A *VFDDisp, SPI_HandleTypeDef *Bus, GPIO_TypeDef *vfdGPIO, uint16_t BLANK_pin, uint16_t LAT_pin, uint16_t GCP_pin){
 
 	// Store params into our struct
 	VFDDisp->Bus = Bus;
@@ -249,7 +248,36 @@ HAL_GPIO_WritePin(VFDDisp->vfdGPIO, VFDDisp->LAT_pin, GPIO_PIN_SET);// LAT high
 HAL_GPIO_WritePin(VFDDisp->vfdGPIO, VFDDisp->LAT_pin, GPIO_PIN_RESET);// LAT low
 HAL_GPIO_WritePin(VFDDisp->vfdGPIO, VFDDisp->BLANK_pin, GPIO_PIN_RESET);// BLK low
 
-HAL_SPI_Transmit_IT(VFDDisp->Bus, (uint8_t*)GPbuff, 36);// Send data over SPI
+HAL_SPI_Transmit_DMA(VFDDisp->Bus, (uint8_t*)GPbuff, 36);// Send data over SPI via DMA
+
+// W.I.P.
+//entire SPI process took about 16 to 20 uSec, we need this to generate the GCP signal for Grayscaling our Display.
+//Delay_us(20);
+// According to Datasheet of MN14440A
+
+Delay_us(4);// Delay 3/4 of 20 uSec.
+VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
+VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
+
+Delay_us(4);// Delay 1/2 of 20 uSec.
+VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
+VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
+
+Delay_us(2);// Delay 1/3 of 20 uSec.
+VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
+VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
+
+Delay_us(1);// Delay 1/4 of 20 uSec
+VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
+VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
+
+Delay_us(1);// Delay 1/6 of 20 uSec
+VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
+VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
+
+//Delay_us(0);// Delay 1/9 of 20uSec
+VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
+VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
 
 }
 

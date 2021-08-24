@@ -18,6 +18,7 @@ typedef struct {
 	GPIO_TypeDef			*vfdGPIO;
 	uint16_t 				BLANK_pin;
 	uint16_t				LAT_pin;
+	uint16_t				GCP_pin;
 
 }MN15439A;
 
@@ -26,7 +27,7 @@ typedef struct {
 static uint8_t *FB0;
 
 void Delay_us(uint16_t usecs);
-void VFDsetup(MN15439A *VFDDisp, SPI_HandleTypeDef *Bus, GPIO_TypeDef *vfdGPIO, uint16_t BLANK_pin, uint16_t LAT_pin);
+void VFDsetup(MN15439A *VFDDisp, SPI_HandleTypeDef *Bus, GPIO_TypeDef *vfdGPIO, uint16_t BLANK_pin, uint16_t LAT_pin, uint16_t GCP_pin);
 void VFDLoadBMP(MN15439A *VFDDisp, uint8_t Grid);
 void VFDLoadFull(uint8_t * BMP);
 void VFDClear();

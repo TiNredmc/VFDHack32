@@ -24,4 +24,5 @@
 "./Src/stm32f3xx_it.o"
 "./Src/syscalls.o"
 "./Src/system_stm32f3xx.o"
+"./Src/tim.o"
 "./Startup/startup_stm32f303vctx.o"

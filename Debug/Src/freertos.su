@@ -1,0 +1,5 @@
+freertos.c:150:6:VFDscanner	8	static
+freertos.c:172:6:StartTaskDemo	8	static
+freertos.c:195:6:SPIrxDma	8	static
+freertos.c:102:6:MX_FREERTOS_Init	8	static
+freertos.c:212:6:HAL_GPIO_EXTI_Callback	8	static,ignoring_inline_asm

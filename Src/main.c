@@ -47,6 +47,9 @@ MN15439A VFDDisp;
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
+// Grid number counter
+uint8_t GridNum = 1;
+
 // Pin connection
 // PB15 	MOSI
 // PB13 	SCLK
@@ -58,22 +61,6 @@ MN15439A VFDDisp;
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
-// Grid number counter
-uint8_t GridNum = 1;
-
-//dummy array
-uint8_t DUM0[39]={
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54, 0xA8,
-		0x54, 0xA8, 0x54      };
 
 /* USER CODE END PV */
 
@@ -121,10 +108,8 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   VFDsetup(&VFDDisp, &hspi2, GPIOE, LD4_Pin, LD3_Pin);
-  //VFDLoadFull((uint8_t *)gImage_BMP);
-
   VFDPrint(" !""#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
- // HAL_TIM_Base_Start_IT(&htim6);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -135,10 +120,9 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	//HAL_Delay(10);
-
-		VFDLoadBMP(&VFDDisp, GridNum++);
-		  if(GridNum > 52)
-			  GridNum = 1;
+	VFDLoadBMP(&VFDDisp, GridNum);
+	  if(GridNum > 52)
+		  GridNum = 1;
   }
   /* USER CODE END 3 */
 }
@@ -155,12 +139,13 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL16;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -181,11 +166,15 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// Timer interrupt handler for our display refresh
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	// When NSS pin pulled low by host, receive the Frame buffer data.
-	HAL_SPI_Receive_DMA(&hspi1, FB0, sizeof(FB0));
+	if(GPIO_Pin == SPI1_NSS_Pin){
+		HAL_SPI_Receive_DMA(&hspi1, FB0, 780);
+  }
 }
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi){
+	GridNum++;
+}
+
 
 /* USER CODE END 4 */
 

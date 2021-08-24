@@ -245,11 +245,11 @@ for(uint8_t wdCount=0; wdCount < 2;wdCount++){// First 6 array repeat itself so 
 
 HAL_GPIO_WritePin(VFDDisp->vfdGPIO, VFDDisp->BLANK_pin, GPIO_PIN_SET);// BLK high
 HAL_GPIO_WritePin(VFDDisp->vfdGPIO, VFDDisp->LAT_pin, GPIO_PIN_SET);// LAT high
-Delay_us(1);
+//Delay_us(1);
 HAL_GPIO_WritePin(VFDDisp->vfdGPIO, VFDDisp->LAT_pin, GPIO_PIN_RESET);// LAT low
 HAL_GPIO_WritePin(VFDDisp->vfdGPIO, VFDDisp->BLANK_pin, GPIO_PIN_RESET);// BLK low
 
-HAL_SPI_Transmit(VFDDisp->Bus, GPbuff, 36, HAL_MAX_DELAY);// Send data over SPI
+HAL_SPI_Transmit_IT(VFDDisp->Bus, (uint8_t*)GPbuff, 36);// Send data over SPI
 
 }
 
@@ -259,6 +259,8 @@ void VFDLoadFull(uint8_t * BMP){
 }
 
 void VFDClear(){
+	Xcol = 1;
+	YLine = 1;
 	memset(FB0, 0, 780);
 }
 

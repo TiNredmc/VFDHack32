@@ -16,13 +16,58 @@
       <Secure/>
       <filestoremove>
         <file>
+          <name>Src\freertos.c</name>
+        </file>
+        <file>
+          <name>Src\tim.c</name>
+        </file>
+        <file>
+          <name>Src\stm32f3xx_hal_timebase_tim.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\croutine.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\event_groups.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\list.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\queue.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\stream_buffer.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\tasks.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\timers.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os2.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\portable\MemMang\heap_4.c</name>
+        </file>
+        <file>
+          <name>Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F\port.c</name>
+        </file>
+        <file>
           <name>gpio.h</name>
+        </file>
+        <file>
+          <name>FreeRTOSConfig.h</name>
         </file>
         <file>
           <name>dma.h</name>
         </file>
         <file>
           <name>spi.h</name>
+        </file>
+        <file>
+          <name>tim.h</name>
         </file>
         <file>
           <name>stm32f3xx_it.h</name>

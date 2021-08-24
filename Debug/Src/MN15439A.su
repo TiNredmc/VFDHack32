@@ -3,7 +3,7 @@ MN15439A.c:45:6:Delay_us	0	static
 MN15439A.c:53:6:VFDsetup	8	static
 MN15439A.c:66:6:VFDLoadBMP	64	static
 MN15439A.c:257:6:VFDLoadFull	0	static
-MN15439A.c:261:6:VFDClear	0	static
-MN15439A.c:265:6:VFDFill	0	static
-MN15439A.c:272:6:VFDLoadPart	32	static
-MN15439A.c:294:6:VFDPrint	28	static,ignoring_inline_asm
+MN15439A.c:261:6:VFDClear	4	static
+MN15439A.c:267:6:VFDFill	0	static
+MN15439A.c:274:6:VFDLoadPart	32	static
+MN15439A.c:296:6:VFDPrint	28	static,ignoring_inline_asm

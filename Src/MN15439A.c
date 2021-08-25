@@ -56,6 +56,7 @@ void VFDsetup(MN15439A *VFDDisp, SPI_HandleTypeDef *Bus, GPIO_TypeDef *vfdGPIO, 
 	VFDDisp->vfdGPIO = vfdGPIO;
 	VFDDisp->BLANK_pin = BLANK_pin;
 	VFDDisp->LAT_pin = LAT_pin;
+	VFDDisp->GCP_pin = GCP_Pin;
 
 	FB0 = malloc(750);// malloc the frame buffer memory
 	VFDFill(false);
@@ -255,7 +256,7 @@ HAL_SPI_Transmit_DMA(VFDDisp->Bus, (uint8_t*)GPbuff, 36);// Send data over SPI v
 //Delay_us(20);
 // According to Datasheet of MN14440A
 
-Delay_us(4);// Delay 3/4 of 20 uSec.
+Delay_us(5);// Delay 3/4 of 20 uSec.
 VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
 VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
 
@@ -263,11 +264,11 @@ Delay_us(4);// Delay 1/2 of 20 uSec.
 VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
 VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
 
-Delay_us(2);// Delay 1/3 of 20 uSec.
+Delay_us(3);// Delay 1/3 of 20 uSec.
 VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
 VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
 
-Delay_us(1);// Delay 1/4 of 20 uSec
+//Delay_us(2);// Delay 1/4 of 20 uSec
 VFDDisp->vfdGPIO->BSRR = VFDDisp->GCP_pin;
 VFDDisp->vfdGPIO->BRR  = VFDDisp->GCP_pin;
 
@@ -326,7 +327,7 @@ void VFDPrint(char *txtBuf){
 uint16_t chOff = 0;
 
 while(*txtBuf){
-	// In case of reached 50 chars or newline detected , Do the newline
+	// In case of reached 19 chars or newline detected , Do the newline
 	if ((Xcol > 19) || *txtBuf == 0x0A){
 		Xcol = 1;// Move cursor to most left
 		YLine += 8;// enter new line

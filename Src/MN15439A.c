@@ -339,7 +339,7 @@ while(*txtBuf){
 
 	chOff = (*txtBuf - 0x20) * 8;// calculate char offset (fist 8 pixel of character)
 
-	for(uint8_t i=0;i < 8;i++){// Copy the inverted color px to buffer
+	for(uint8_t i=0;i < 8;i++){// Copy the inverted byte to buffer
 	chBuf[i] = smallRbit(font8x8_basic[i + chOff]);
 	}
 

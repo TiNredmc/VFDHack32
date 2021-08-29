@@ -179,8 +179,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
   }
 
 }
-void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi){
-	//GridNum++;
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi){
+		GridNum = 1;//When received buffer from host, reset the grid number to 1 to re-render entire display.
 }
 
 

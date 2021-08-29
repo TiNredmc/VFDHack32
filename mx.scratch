@@ -25,6 +25,9 @@
           <name>spi.h</name>
         </file>
         <file>
+          <name>tim.h</name>
+        </file>
+        <file>
           <name>stm32f3xx_it.h</name>
         </file>
         <file>
@@ -32,9 +35,6 @@
         </file>
         <file>
           <name>main.h</name>
-        </file>
-        <file>
-          <name>tim.h</name>
         </file>
       </filestoremove>
       <sourceEntriesToRemove>
